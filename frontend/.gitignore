@@ -19,6 +19,8 @@ htmlcov/
 *.db
 .DS_Store
 
+node_modules/
+
 CLAUDE.md
 prompt.md
 .claude/
