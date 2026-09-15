@@ -173,11 +173,11 @@ Four roles exist: **COMPRADOR** (customer), **ADMINISTRADOR** (administrator), *
 | [Alembic](https://alembic.sqlalchemy.org) | ≥ 1.13 | Database migrations in [`migraciones/`](backend/migraciones). |
 | [Pydantic v2](https://docs.pydantic.dev) + pydantic-settings | ≥ 2.4 | Request and response models, and typed settings loaded from environment variables. |
 | [python-jose](https://github.com/mpdavis/python-jose) | ≥ 3.3 | Signs and verifies JWTs (HS256). |
-| [passlib](https://passlib.readthedocs.io) + bcrypt | ≥ 1.7.4 | Password hashing. |
+| [passlib](https://passlib.readthedocs.io) + bcrypt | 1.7.4 / 4.0 | Password hashing. `bcrypt` is pinned below 4.1 because passlib 1.7.4 doesn't support newer versions. |
 | [SlowAPI](https://slowapi.readthedocs.io) | ≥ 0.1.9 | Rate limiting per client IP. |
 | [Cloudinary SDK](https://cloudinary.com/documentation/python_integration) | ≥ 1.40 | Image storage. Uploads are signed on the server. |
 | [MercadoPago SDK](https://github.com/mercadopago/sdk-python) | ≥ 2.2 | Creates payment preferences and payments, and looks up payments for the webhook. |
-| [pytest](https://pytest.org) + httpx `TestClient` | ≥ 8.3 | API tests. |
+| [pytest](https://pytest.org) + httpx `TestClient` + pytest-cov | ≥ 8.3 | API tests with a coverage gate. |
 
 ### Infrastructure
 
@@ -579,8 +579,7 @@ Tests are grouped by module: `test_sesion`, `test_ordenes`, `test_cobros`, `test
 
 ```bash
 cd backend
-pip install pytest-cov              # pytest.ini enforces --cov-fail-under=60
-pytest                              # full suite with coverage
+pytest                              # full suite; pytest.ini enforces 60% coverage
 pytest pruebas/test_ordenes.py      # one file
 pytest -k "test_crear_orden"        # one test by name
 ```
@@ -591,12 +590,9 @@ pytest -k "test_crear_orden"        # one test by name
 
 | Symptom | Cause | Fix |
 |---|---|---|
-| `ValueError: password cannot be longer than 72 bytes` on startup | `passlib` 1.7.4 doesn't work with `bcrypt` ≥ 4.1 | `pip install "bcrypt<4.1"` |
 | `429 Too Many Requests` on login | Login is limited to 5 attempts per 15 minutes per IP | Wait, or restart the API (the limiter only keeps counts in memory) |
 | API ignores `backend/.env` when run locally | Local settings are read from the repository root | Move the file to `./.env` (see [Backend](#2-backend)) |
 | Products show a placeholder instead of a photo | Demo products have no images | Run `seed_imagenes.py` with Cloudinary credentials, or upload images from the admin panel |
-| `pytest: error: unrecognized arguments: --cov` | `pytest-cov` isn't installed | `pip install pytest-cov` |
-
 ---
 
 ## Project structure
